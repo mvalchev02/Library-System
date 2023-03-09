@@ -18,6 +18,7 @@ public class MyFrame extends JFrame {
     JTabbedPane tab = new JTabbedPane();
     JTable tableR = new JTable();
     JTable tableB = new JTable();
+    JTable tableTB = new JTable();
     JPanel readersPanel = new JPanel();
     JPanel booksPanel = new JPanel();
     JPanel takenBooksPanel = new JPanel();
@@ -27,6 +28,10 @@ public class MyFrame extends JFrame {
     JPanel booksUp = new JPanel();
     JPanel booksMid = new JPanel();
     JPanel booksDown = new JPanel();
+    JPanel takenBooksUp = new JPanel();
+    JPanel takenBooksMid = new JPanel();
+    JPanel takenBooksDown = new JPanel();
+
 
     //READERS
     JLabel fnameL = new JLabel("Име");
@@ -55,6 +60,20 @@ public class MyFrame extends JFrame {
     JTextField yearrTF = new JTextField();
     //CLOSED
 
+    //TAKEN_BOOKS
+
+    JLabel readerIDL = new JLabel("Читателски номер");
+    JLabel bookIDL = new JLabel("Номер на книга");
+    JLabel dateOfGL = new JLabel("Ден на вземане");
+    JLabel dateToRL = new JLabel("Ден на връщане");
+
+    JTextField readerIDTF = new JTextField();
+    JTextField bookIDTF = new JTextField();
+    JTextField dateOfGTF = new JTextField();
+    JTextField dateToRTF = new JTextField();
+
+    //CLOSED
+
     JButton addButtonR = new JButton("Добави");
     JButton deleteButtonR = new JButton("Изтрий");
     JButton editButtonR = new JButton("Промени");
@@ -62,12 +81,22 @@ public class MyFrame extends JFrame {
     JButton refreshButtonR = new JButton("Обнови");
     JScrollPane myScrollR = new JScrollPane(tableR);
 
+
     JButton addButtonB = new JButton("Добави");
     JButton deleteButtonB = new JButton("Изтрий");
     JButton editButtonB = new JButton("Промени");
     JButton searchButtonB = new JButton("Търси");
     JButton refreshButtonB = new JButton("Обнови");
     JScrollPane myScrollB = new JScrollPane(tableB);
+    JButton addButtonTB = new JButton("Добави");
+    JButton deleteButtonTB = new JButton("Изтрий");
+    JButton editButtonTB = new JButton("Промени");
+    JButton searchButtonTB = new JButton("Търси");
+    JButton refreshButtonTB = new JButton("Обнови");
+    JScrollPane myScrollTB = new JScrollPane(tableTB);
+
+    JComboBox<String> readersCombo = new JComboBox<>();
+    JComboBox<String> booksCombo = new JComboBox<>();
 
     public MyFrame() {
         this.setSize(400, 600);
@@ -133,6 +162,39 @@ public class MyFrame extends JFrame {
         booksPanel.add(booksMid);
         booksPanel.add(booksDown);
 
+        takenBooksPanel.setLayout(new GridLayout(3, 1));
+        takenBooksUp.setLayout(new GridLayout(4, 2));
+
+        takenBooksUp.add(readerIDL);
+        takenBooksUp.add(readerIDTF);
+        takenBooksUp.add(bookIDL);
+        takenBooksUp.add(bookIDTF);
+        takenBooksUp.add(dateOfGL);
+        takenBooksUp.add(dateOfGTF);
+        takenBooksUp.add(dateToRL);
+        takenBooksUp.add(dateToRTF);
+
+        addButtonTB.addActionListener(new AddActionTB());
+        deleteButtonTB.addActionListener(new DeleteActionTB());
+        tableTB.addMouseListener(new MouseActionTB());
+        searchButtonTB.addActionListener(new SearchActionTB());
+        refreshButtonTB.addActionListener(new RefreshActionTB());
+        editButtonTB.addActionListener(new EditTakenBooks());
+
+        takenBooksMid.add(addButtonTB);
+        takenBooksMid.add(deleteButtonTB);
+        takenBooksMid.add(searchButtonTB);
+        takenBooksMid.add(refreshButtonTB);
+        takenBooksMid.add(editButtonTB);
+
+        myScrollTB.setPreferredSize(new Dimension(350, 150));
+        takenBooksDown.add(myScrollTB);
+
+        takenBooksPanel.add(takenBooksUp);
+        takenBooksPanel.add(takenBooksMid);
+        takenBooksPanel.add(takenBooksDown);
+
+
         addButtonR.addActionListener(new AddAction());
         deleteButtonR.addActionListener(new DeleteAction());
         tableR.addMouseListener(new MouseAction());
@@ -148,8 +210,13 @@ public class MyFrame extends JFrame {
         refreshButtonB.addActionListener(new RefreshActionB());
         editButtonB.addActionListener(new EditBooks());
         refreshTableB();
-
+        readersMid.add(readersCombo);
+        booksMid.add(booksCombo);
+        refreshCombo();
+        refreshComboB();
+        refreshTableTB();
         this.setVisible(true);
+
 
     }
 
@@ -188,7 +255,7 @@ public class MyFrame extends JFrame {
 
                 state.execute();
                 refreshTable();
-                //refreshCombo();
+                refreshCombo();
                 clearForm();
 
             } catch (SQLException e1) {
@@ -255,7 +322,7 @@ public class MyFrame extends JFrame {
                 state.execute();
                 id = -1;
                 refreshTable();
-                // refreshCombo();
+                 refreshCombo();
                 clearForm();
             } catch (SQLException e1) {
                 // TODO Auto-generated catch block
@@ -272,6 +339,27 @@ public class MyFrame extends JFrame {
         egnTF.setText("");
         telTF.setText("");
         specTF.setText("");
+    }
+
+    public void refreshCombo() {
+        readersCombo.removeAllItems();
+        conn=DBConnection.getConnection();
+        String sql="select id, fname, lname from readers";
+        String item="";
+
+        try {
+            state=conn.prepareStatement(sql);
+            result=state.executeQuery();
+            while(result.next()) {
+                item=result.getObject(1).toString()+"."
+                        +result.getObject(2).toString()+" "
+                        +result.getObject(3).toString();
+                readersCombo.addItem(item);
+            }
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     class SearchAction implements ActionListener {
@@ -376,7 +464,7 @@ public class MyFrame extends JFrame {
 
                 state.execute();
                 refreshTableB();
-                //refreshCombo();
+                refreshComboB();
                 clearFormB();
 
             } catch (SQLException e1) {
@@ -443,7 +531,7 @@ public class MyFrame extends JFrame {
                 state.execute();
                 id = -1;
                 refreshTableB();
-                // refreshCombo();
+                refreshComboB();
                 clearFormB();
             } catch (SQLException e1) {
                 // TODO Auto-generated catch block
@@ -527,4 +615,203 @@ public class MyFrame extends JFrame {
 
         }
     }
+    public void refreshComboB() {
+        booksCombo.removeAllItems();
+        conn=DBConnection.getConnection();
+        String sql="select id, title, isbn from books";
+        String item="";
+
+        try {
+            state=conn.prepareStatement(sql);
+            result=state.executeQuery();
+            while(result.next()) {
+                item=result.getObject(1).toString()+"."
+                        +result.getObject(2).toString()+" "
+                        +result.getObject(3).toString();
+                booksCombo.addItem(item);
+            }
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
+    class AddActionTB implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            conn = DBConnection.getConnection();
+            String sql = "insert into takenbooks(reader_id, book_id, issuedate, returndate) values(?,?,?,?)";
+            try {
+                state = conn.prepareStatement(sql);
+                state.setString(1, readerIDTF.getText());
+                state.setString(2, bookIDTF.getText());
+                state.setString(3, dateOfGTF.getText());
+                state.setString(4, dateToRTF.getText());
+
+                state.execute();
+                refreshTableTB();
+                clearFormTB();
+
+            } catch (SQLException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+
+        }
+
+    }
+    class MouseActionTB implements MouseListener {
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            int row = tableTB.getSelectedRow();
+            id = Integer.parseInt(tableTB.getValueAt(row, 0).toString());
+            readerIDTF.setText(tableTB.getValueAt(row, 1).toString());
+            bookIDTF.setText(tableTB.getValueAt(row, 2).toString());
+            dateOfGTF.setText(tableTB.getValueAt(row, 3).toString());
+            dateToRTF.setText(tableTB.getValueAt(row, 4).toString());
+
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+            // TODO Auto-generated method stub
+
+        }
+
+    }
+
+    class DeleteActionTB implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            conn = DBConnection.getConnection();
+
+            String sql = "delete from takenbooks where id=?";
+
+            try {
+                state = conn.prepareStatement(sql);
+                state.setInt(1, id);
+                state.execute();
+                id = -1;
+                refreshTableTB();
+                clearFormTB();
+            } catch (SQLException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+
+        }
+
+    }
+
+    public void clearFormTB() {
+        readerIDTF.setText("");
+        bookIDTF.setText("");
+        dateOfGTF.setText("");
+        dateToRTF.setText("");
+    }
+
+    class SearchActionTB implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            conn = DBConnection.getConnection();
+            String sql = "select * from takenbooks where book_id=?";
+
+            try {
+                state = conn.prepareStatement(sql);
+                state.setString(1, bookIDTF.getText());
+                result = state.executeQuery();
+                tableTB.setModel(new MyModel(result));
+                clearFormTB();
+            } catch (SQLException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            } catch (Exception e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+
+
+        }
+
+    }
+    class RefreshActionTB implements ActionListener{
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            refreshTableTB();
+
+        }
+
+    }
+    class EditTakenBooks implements ActionListener {
+        public void actionPerformed (ActionEvent arg0) {
+            conn=DBConnection.getConnection();
+            if(id>0) {
+                String sql="update takenbooks set reader_id=?, book_id=?, issuedate=?, returndate=? where id=?";
+
+                try {
+                    state=conn.prepareStatement(sql);
+
+                    state.setString(1, readerIDTF.getText());
+                    state.setString(2, bookIDTF.getText());
+                    state.setString(3, dateOfGTF.getText());
+                    state.setString(4, dateToRTF.getText());
+                    state.setInt(5, id);
+
+                    state.execute();
+
+                    refreshTableTB();
+
+                } catch (SQLException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+
+                clearFormTB();
+            }
+
+        }
+    }
+    public void refreshTableTB() {
+
+        conn = DBConnection.getConnection();
+        try {
+            state = conn.prepareStatement("select * from takenbooks");
+            result = state.executeQuery();
+            tableTB.setModel(new MyModel(result));
+
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+    }
+
 }

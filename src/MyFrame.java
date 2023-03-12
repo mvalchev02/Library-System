@@ -22,6 +22,7 @@ public class MyFrame extends JFrame {
     JPanel readersPanel = new JPanel();
     JPanel booksPanel = new JPanel();
     JPanel takenBooksPanel = new JPanel();
+
     JPanel readersUp = new JPanel();
     JPanel readersMid = new JPanel();
     JPanel readersDown = new JPanel();
@@ -73,6 +74,42 @@ public class MyFrame extends JFrame {
     JTextField dateToRTF = new JTextField();
 
     //CLOSED
+
+    //QUERY
+    JLabel dToRQL=new JLabel("Въведете дата на връщане:");
+    JTextField dToRQTF=new JTextField();
+
+    JPanel queryPanel=new JPanel();
+    //подпанели
+    JPanel queryPanelUp=new JPanel();
+    JPanel queryPanelMid=new JPanel();
+    JPanel queryPanelDown=new JPanel();
+    JButton searchBQ=new JButton("Търси");
+
+    JTable tableQ=new JTable();
+    JScrollPane scrollQ=new JScrollPane(tableQ);
+
+
+    //CLOSED
+
+    //2nd QUERY
+    JLabel authorQ2L =new JLabel("Автор");
+    JLabel yearrQ2L =new JLabel("Година на издаване:");
+    JTextField authorQ2TF =new JTextField();
+    JTextField yearrQ2TF =new JTextField();
+    JPanel queryPanel2=new JPanel();
+    //подпанели
+    JPanel queryPanelUp2=new JPanel();
+    JPanel queryPanelMid2=new JPanel();
+    JPanel queryPanelDown2=new JPanel();
+    JButton searchBQ2=new JButton("Търси");
+
+    JTable tableQ2=new JTable();
+    JScrollPane scrollQ2=new JScrollPane(tableQ2);
+
+
+    //CLOSED
+
 
     JButton addButtonR = new JButton("Добави");
     JButton deleteButtonR = new JButton("Изтрий");
@@ -215,6 +252,45 @@ public class MyFrame extends JFrame {
         refreshCombo();
         refreshComboB();
         refreshTableTB();
+
+        tab.add(queryPanel,"Справка");
+        queryPanel.setLayout(new GridLayout(3,1));
+        queryPanel.add(queryPanelUp);
+
+
+        queryPanelUp.add(dToRQL);
+        queryPanelUp.add(dToRQTF);
+        dToRQTF.setPreferredSize(new Dimension(60,30));
+        queryPanel.add(queryPanelMid);
+        queryPanelMid.add(searchBQ);
+
+        searchBQ.addActionListener(new SearchActionQ());
+        
+        scrollQ.setPreferredSize(new Dimension(350, 200));
+        queryPanelDown.add(scrollQ);
+        queryPanel.add(queryPanelDown);
+        clearFormQ();
+
+        tab.add(queryPanel2,"Справка2");
+        queryPanel2.setLayout(new GridLayout(3,1));
+        queryPanel2.add(queryPanelUp2);
+
+        queryPanelUp2.add(authorQ2L);
+        queryPanelUp2.add(authorQ2TF);
+        queryPanelUp2.add(yearrQ2L);
+        queryPanelUp2.add(yearrQ2TF);
+        authorQ2TF.setPreferredSize(new Dimension(90,30));
+        yearrQ2TF.setPreferredSize(new Dimension(90,30));
+        queryPanel2.add(queryPanelMid2);
+        queryPanelMid2.add(searchBQ2);
+
+        searchBQ2.addActionListener(new SearchActionQ2());
+
+        scrollQ2.setPreferredSize(new Dimension(350, 200));
+        queryPanelDown2.add(scrollQ2);
+        queryPanel2.add(queryPanelDown2);
+        clearFormQ2();
+
         this.setVisible(true);
 
 
@@ -237,7 +313,9 @@ public class MyFrame extends JFrame {
         }
 
     }
-
+public void clearFormQ() {
+        dToRQTF.setText("");
+}
     class AddAction implements ActionListener {
 
         @Override
@@ -804,12 +882,64 @@ public class MyFrame extends JFrame {
             result = state.executeQuery();
             tableTB.setModel(new MyModel(result));
 
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
+        }
+
+    }
+
+    class SearchActionQ implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            conn = DBConnection.getConnection();
+            String sql = "select r.fname,r.lname,b.title,tb.returndate from readers r,books b,takenbooks tb where r.id=tb.reader_id and b.id=tb.book_id and tb.returndate=?";
+
+            try {
+                state = conn.prepareStatement(sql);
+                state.setString(1, dToRQTF.getText());
+                result = state.executeQuery();
+                tableQ.setModel(new MyModel(result));
+                clearFormQ();
+            } catch (Exception e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+
+
+        }
+
+    }
+    public void clearFormQ2() {
+        authorQ2TF.setText("");
+        yearrQ2TF.setText("");
+
+    }
+
+    class SearchActionQ2 implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            conn = DBConnection.getConnection();
+            String sql = "select b.id,b.title,b.isbn,b.author from readers r,books b,takenbooks tb where r.id=tb.reader_id and b.id=tb.book_id and b.publhouse=? and b.yearr=?";
+
+            try {
+                state = conn.prepareStatement(sql);
+                state.setString(1, authorQ2TF.getText());
+                state.setString(2, yearrQ2TF.getText());
+                result = state.executeQuery();
+                tableQ2.setModel(new MyModel(result));
+                clearFormQ2();
+                refreshTableTB();
+            } catch (Exception e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+            }
+
+
         }
 
     }

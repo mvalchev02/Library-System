@@ -93,10 +93,10 @@ public class MyFrame extends JFrame {
     //CLOSED
 
     //2nd QUERY
-    JLabel authorQ2L =new JLabel("Автор");
-    JLabel yearrQ2L =new JLabel("Година на издаване:");
-    JTextField authorQ2TF =new JTextField();
-    JTextField yearrQ2TF =new JTextField();
+    JLabel fnameQ2L =new JLabel("Име:");
+    JLabel lnameQ2L =new JLabel("Фамилия:");
+    JTextField fnameQ2TF =new JTextField();
+    JTextField lnameQ2TF =new JTextField();
     JPanel queryPanel2=new JPanel();
     //подпанели
     JPanel queryPanelUp2=new JPanel();
@@ -275,12 +275,12 @@ public class MyFrame extends JFrame {
         queryPanel2.setLayout(new GridLayout(3,1));
         queryPanel2.add(queryPanelUp2);
 
-        queryPanelUp2.add(authorQ2L);
-        queryPanelUp2.add(authorQ2TF);
-        queryPanelUp2.add(yearrQ2L);
-        queryPanelUp2.add(yearrQ2TF);
-        authorQ2TF.setPreferredSize(new Dimension(90,30));
-        yearrQ2TF.setPreferredSize(new Dimension(90,30));
+        queryPanelUp2.add(fnameQ2L);
+        queryPanelUp2.add(fnameQ2TF);
+        queryPanelUp2.add(lnameQ2L);
+        queryPanelUp2.add(lnameQ2TF);
+        fnameQ2TF.setPreferredSize(new Dimension(90,30));
+        lnameQ2TF.setPreferredSize(new Dimension(90,30));
         queryPanel2.add(queryPanelMid2);
         queryPanelMid2.add(searchBQ2);
 
@@ -913,8 +913,8 @@ public void clearFormQ() {
 
     }
     public void clearFormQ2() {
-        authorQ2TF.setText("");
-        yearrQ2TF.setText("");
+        fnameQ2TF.setText("");
+        lnameQ2TF.setText("");
 
     }
 
@@ -924,12 +924,11 @@ public void clearFormQ() {
         public void actionPerformed(ActionEvent e) {
 
             conn = DBConnection.getConnection();
-            String sql = "select b.id,b.title,b.isbn,b.author from readers r,books b,takenbooks tb where r.id=tb.reader_id and b.id=tb.book_id and b.publhouse=? and b.yearr=?";
-
+            String sql = "select r.id,b.title,b.isbn,tb.returndate from readers r,books b,takenbooks tb where r.id=tb.reader_id and b.id=tb.book_id and r.fname=? and r.lname=?";
             try {
                 state = conn.prepareStatement(sql);
-                state.setString(1, authorQ2TF.getText());
-                state.setString(2, yearrQ2TF.getText());
+                state.setString(1, fnameQ2TF.getText());
+                state.setString(2, lnameQ2TF.getText());
                 result = state.executeQuery();
                 tableQ2.setModel(new MyModel(result));
                 clearFormQ2();
